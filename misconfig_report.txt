@@ -1,0 +1,3 @@
+[
+  "Container webfrontendchart in Deployment release-webfrontendchart must not run as root - use runAsNonRoot within container security context"
+]
