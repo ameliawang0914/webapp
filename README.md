@@ -16,6 +16,6 @@ opa eval --input rendered.json --data policy.rego "data.kubernetes.admission.den
 
 # fix the rendered yaml report
 python fix_misconfig.py
-
+```
 ## Enhancement
 Fix the value file and re-render and validate.
