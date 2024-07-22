@@ -1,5 +1,5 @@
 # webapp
-Node JS web app
+Node JS web app. Provides solution uses OPA to auto fix misconfiguration during CI/CD stages.
 
 ## Required packages
 
