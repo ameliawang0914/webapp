@@ -1,0 +1,10 @@
+# Ignore Python virtual environment
+.venv/
+
+# Ignore Helm rendered files
+rendered.yaml
+rendered_fixed.yaml
+rendered.json
+
+# Ignore OPA evaluation output
+misconfig_report.txt
