@@ -69,11 +69,14 @@ stages:
         echo "Generating Helm template..."
         helm template release $(helmChartPath) > rendered.yaml
         echo "Running OPA policies..."
-        opa eval --input rendered.yaml --data policies/ 'data.kubernetes.admission.deny' -f pretty > $(Build.SourcesDirectory)/misconfig_report.txt
+        opa eval --input rendered.yaml --data policies/ 'data.kubernetes.admission.deny' -f pretty > /misconfig_report.txt
         echo "Policy scanning completed, as below"
         ls -al
         pwd
-        cat $(Build.SourcesDirectory)/misconfig_report.txt
+        echo "cat misconfig"
+        cat misconfig_report.txt
+        echo "cat Docker"
+        cat Dockerfile
       displayName: 'OPA to Scan Helm Charts'
       continueOnError: false
     
