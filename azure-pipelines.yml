@@ -10,6 +10,8 @@ variables:
   # File paths for Helm, Opa, Python executions
   - name: helmChartPath
     value: '$(Build.SourcesDirectory)/webfrontendchart/'
+  - name: valuesFile
+    value: '$(Build.SourcesDirectory)/webfrontendchart/values.yaml'
 
   # For Github Operations
   - name: githubOrganization
@@ -123,7 +125,7 @@ stages:
         git checkout -b $(targetBranch)
 
         # Assuming fix_misconfig_opa.py made changes to the config file
-        git add $(configFile)
+        git add $(valuesFile)
         git commit -m "$(commitMessage)"
         git push https://$(gittoken)@github.com/$(githubOrganization)/$(githubRepository).git $(targetBranch)
 
