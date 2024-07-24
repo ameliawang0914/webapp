@@ -71,7 +71,8 @@ stages:
         echo "Running OPA policies..."
         opa eval --input rendered.yaml --data policies/ 'data.kubernetes.admission.deny' -f pretty > $(Build.SourcesDirectory)/misconfig_report.txt
         echo "Policy scanning completed, as below"
-        cat $(Build.SourcesDirectory)/misconfig_report.txt
+        ls -al
+        pwd
       displayName: 'OPA to Scan Helm Charts'
       continueOnError: false
     
@@ -79,6 +80,7 @@ stages:
         misconfigReport=$(cat misconfig_report.txt)
         if [ "$misconfigReport" != "[]" ]; then
           echo "Detected misconfiguration..."
+          ls -al
           cat misconfig_report.txt
           echo "Installing Python dependencies..."
           python -m venv venv
