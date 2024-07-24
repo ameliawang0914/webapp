@@ -68,13 +68,10 @@ stages:
         helm template release $(helmChartPath) > rendered.yaml
         echo "Running OPA policies..."
         opa eval --input rendered.yaml --data policies/ 'data.kubernetes.admission.deny' -f pretty > misconfig_report.txt
-        echo "Policy scanning completed"
+        echo "Policy scanning completed, as below"
+        cat misconfig_report.txt
       displayName: 'OPA to Scan Helm Charts'
       continueOnError: false
-    
-    - script: |
-        
-      displayName: 'Install Python Dependencies'
     
     - script: |
         misconfigReport=$(cat misconfig_report.txt)
@@ -101,7 +98,7 @@ stages:
   condition: and(succeeded(), eq(dependencies.Scan.outputs['Scan.setMisconfig.misconfigDetected'], 'true'))
   jobs:
   - job: CreatePR
-    displayName: Create Pull Request
+    displayName: Pull Request For Fix Branch
     pool:
       vmImage: $(vmImageName)
     steps:
