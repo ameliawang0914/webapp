@@ -69,7 +69,7 @@ stages:
         echo "Generating Helm template..."
         helm template release $(helmChartPath) > rendered.yaml
         echo "Running OPA policies..."
-        opa eval --input rendered.yaml --data 'data.kubernetes.admission.deny' -f pretty > misconfigs.json
+        opa eval --input rendered.yaml --data policy.rego 'data.kubernetes.admission.deny' -f pretty > misconfigs.json
         echo "Policy scanning completed, as below"
         ls -al
         pwd
