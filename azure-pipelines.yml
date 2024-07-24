@@ -73,6 +73,7 @@ stages:
         echo "Policy scanning completed, as below"
         ls -al
         pwd
+        cat $(Build.SourcesDirectory)/misconfig_report.txt
       displayName: 'OPA to Scan Helm Charts'
       continueOnError: false
     
