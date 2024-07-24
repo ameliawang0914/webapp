@@ -59,6 +59,7 @@ stages:
         chmod +x /usr/local/bin/opa
         echo "Helm and OPA installed"
       displayName: 'Installation of Helm and OPA completed successfully'
+      continueOnError: false
     
     - script: |
         echo "Linting Helm charts..."
@@ -72,18 +73,18 @@ stages:
       continueOnError: false
     
     - script: |
-        echo "Installing Python dependencies..."
-        python -m venv venv
-        source venv/bin/activate
-        pip install -r requirements.txt
-        echo "Python dependencies installed"
+        
       displayName: 'Install Python Dependencies'
     
     - script: |
         misconfigReport=$(cat misconfig_report.txt)
-        if [ "$(misconfigReport)" != "[]" ]; then
-          echo "Detected misconfiguration, execute fix_misconfig.py to modify the values.yaml file"
+        if [ "$misconfigReport" != "[]" ]; then
+          echo "Detected misconfiguration..."
+          echo "Installing Python dependencies..."
+          python -m venv venv
           source venv/bin/activate
+          pip install -r requirements.txt
+          echo "Excute fix_misconfig.py to change values.yaml"
           python fix_misconfig.py
           echo "##vso[task.setvariable variable=misconfigDetected;isOutput=true]true"
         else
