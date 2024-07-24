@@ -70,13 +70,8 @@ stages:
         helm template release $(helmChartPath) > rendered.yaml
         echo "Running OPA policies..."
         opa eval --input rendered.yaml --data policy.rego 'data.kubernetes.admission.deny' -f pretty > misconfigs.json
-        echo "Policy scanning completed, as below"
-        ls -al
-        pwd
-        echo "cat misconfig"
+        echo "Policy scanning completed"
         cat misconfigs.json
-        echo "cat Docker"
-        cat Dockerfile
       displayName: 'OPA to Scan Helm Charts'
       continueOnError: false
     
@@ -84,73 +79,63 @@ stages:
         misconfigReport=$(cat misconfigs.json)
         if [ "$misconfigReport" != "[]" ]; then
           echo "Detected misconfiguration..."
-          ls -al
-          cat misconfigs.json
           echo "Installing Python dependencies..."
           python -m venv venv
           source venv/bin/activate
           pip install -r requirements.txt
-          echo "Excute fix_misconfig.py to change values.yaml"
+          echo "Execute fix_misconfig.py to change values.yaml"
           python fix_misconfig.py
-          echo "##vso[task.setvariable variable=misconfigDetected;isOutput=true]true"
         else
           echo "No misconfigurations detected by OPA."
-          echo "##vso[task.setvariable variable=misconfigDetected;isOutput=true]false"
         fi
       displayName: 'Python to Fix OPA Misconfigurations'
       continueOnError: false
       name: setMisconfig
     
-- stage: PullRequest
-  displayName: Auto Create Pull Request to Fix Misconfiguration
-  dependsOn: Scan
-  condition: and(succeeded(), eq(dependencies.Scan.outputs['Scan.setMisconfig.misconfigDetected'], 'true'))
-  jobs:
-  - job: CreatePR
-    displayName: Pull Request For Fix Branch
-    pool:
-      vmImage: $(vmImageName)
-    steps:
     - script: |
-        echo "Install GitHub CLI"
-        sudo apt-get update
-        sudo apt-get install -y gh
-        echo "Installation of GitHub CLI completed successfully"
-      displayName: 'Install GitHub CLI'
+        if [ "$(misconfigReport)" != "[]" ]; then
+          echo "Install GitHub CLI"
+          sudo apt-get update
+          sudo apt-get install -y gh
+          echo "Installation of GitHub CLI completed successfully"
 
-    - script: |
-        echo 'Build.SourceBranchName'
-        echo $(Build.SourceBranchName)
-        echo 'targetBranch'
-        echo $(targetBranch)
-        echo 'sourceBranch'
-        echo $(sourceBranch)
+          echo 'Build.SourceBranchName'
+          echo $(Build.SourceBranchName)
+          echo 'targetBranch'
+          echo $(targetBranch)
+          echo 'sourceBranch'
+          echo $(sourceBranch)
 
-        git config --global user.email "yuewangapply@gmail.com"
-        git config --global user.name "Wang Yue"
+          git config --global user.email "yuewangapply@gmail.com"
+          git config --global user.name "Wang Yue"
 
-        git checkout -b $(targetBranch)
+          git checkout -b $(targetBranch)
 
-        # Assuming fix_misconfig_opa.py made changes to the config file
-        git add $(valuesFile)
-        git commit -m "$(commitMessage)"
-        git push https://$(gittoken)@github.com/$(githubOrganization)/$(githubRepository).git $(targetBranch)
+          # Assuming fix_misconfig.py made changes to the config file
+          git add $(valuesFile)
+          git commit -m "$(commitMessage)"
+          git push https://$(gittoken)@github.com/$(githubOrganization)/$(githubRepository).git $(targetBranch)
 
-        # Create Pull Request using GitHub CLI
-        if ! gh auth status; then
-          echo $(gittoken) | gh auth login --with-token
-          echo "Authenticated to GitHub CLI with PAT"
+          # Create Pull Request using GitHub CLI
+          if ! gh auth status; then
+            echo $(gittoken) | gh auth login --with-token
+            echo "Authenticated to GitHub CLI with PAT"
+          fi
+          gh pr create --title "$(pullRequestTitle)" --body "$(pullRequestDescription)" --base $(sourceBranch) --head $(targetBranch)
+          echo "##vso[task.setvariable variable=prCreated;isOutput=true]true"
+          echo 'Created a pull request to merge from $(sourceBranch) into $(targetBranch)'
+        else
+          echo "Skip creating pull request."
+          echo "##vso[task.setvariable variable=prCreated;isOutput=true]false"
         fi
-        gh pr create --title "$(pullRequestTitle)" --body "$(pullRequestDescription)" --base $(sourceBranch) --head $(targetBranch)
-        echo "##vso[task.setvariable variable=prCreated;isOutput=true]true"
-        echo 'Created a pull request to merge from $(sourceBranch) into $(targetBranch)'
       displayName: 'Create Pull Request on GitHub'
+      continueOnError: false
       name: setPrOutput
 
 - stage: Build
   displayName: Build and push stage
-  dependsOn: PullRequest
-  condition: and(succeeded(), eq(dependencies.PullRequest.outputs['CreatePR.setPrOutput.prCreated'], 'true'))
+  dependsOn: Scan
+  condition: and(succeeded(), eq(dependencies.Scan.outputs['setPrOutput.prCreated'], 'false'))
   jobs:
   - job: Build
     displayName: Build
