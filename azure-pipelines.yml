@@ -69,9 +69,9 @@ stages:
         echo "Generating Helm template..."
         helm template release $(helmChartPath) > rendered.yaml
         echo "Running OPA policies..."
-        opa eval --input rendered.yaml --data policies/ 'data.kubernetes.admission.deny' -f pretty > misconfig_report.txt
+        opa eval --input rendered.yaml --data policies/ 'data.kubernetes.admission.deny' -f pretty > $(Build.SourcesDirectory)/misconfig_report.txt
         echo "Policy scanning completed, as below"
-        cat misconfig_report.txt
+        cat $(Build.SourcesDirectory)/misconfig_report.txt
       displayName: 'OPA to Scan Helm Charts'
       continueOnError: false
     
@@ -79,6 +79,7 @@ stages:
         misconfigReport=$(cat misconfig_report.txt)
         if [ "$misconfigReport" != "[]" ]; then
           echo "Detected misconfiguration..."
+          cat misconfig_report.txt
           echo "Installing Python dependencies..."
           python -m venv venv
           source venv/bin/activate
@@ -90,7 +91,7 @@ stages:
           echo "No misconfigurations detected by OPA."
           echo "##vso[task.setvariable variable=misconfigDetected;isOutput=true]false"
         fi
-      displayName: 'Fix OPA Misconfigurations'
+      displayName: 'Python to Fix OPA Misconfigurations'
       continueOnError: false
       name: setMisconfig
     
