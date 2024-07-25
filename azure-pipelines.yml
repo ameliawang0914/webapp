@@ -1,6 +1,11 @@
 trigger:
 - main
 
+pr:
+  branches:
+    exclude:
+      - fix/*
+
 resources:
 - repo: self
 
@@ -27,7 +32,7 @@ variables:
   - name: pullRequestDescription
     value: 'This PR fixes the values and deployment based on detected misconfigurations'
   - name: sourceBranch
-    value: 'testC'
+    value: 'test'
   
   # Container registry service connection established during pipeline creation
   - name: dockerRegistryServiceConnection
@@ -64,7 +69,7 @@ stages:
       continueOnError: false
     
     - script: |
-        echo "Linting Helm charts..."
+        echo "Linting Helm charts....."
         helm lint $(helmChartPath)
         echo "Generating Helm template..."
         helm template release $(helmChartPath) > rendered.yaml
@@ -93,6 +98,7 @@ stages:
       name: setMisconfig
     
     - script: |
+        misconfigReport=$(cat misconfigs.json)
         if [ "$(misconfigReport)" != "[]" ]; then
           echo "Install GitHub CLI"
           sudo apt-get update
