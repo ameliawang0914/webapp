@@ -134,7 +134,7 @@ stages:
           echo "Skip creating pull request."
           echo "##vso[task.setvariable variable=prCreated;isOutput=true]false"
         fi
-        echo "prCreated: $(prCreated)"
+        echo "prCreated: $prCreated"
       displayName: 'Create Pull Request on GitHub'
       continueOnError: false
       name: setPrOutput
