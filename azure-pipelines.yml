@@ -1,6 +1,12 @@
 
 trigger:
 - main
+- test
+
+pr:
+  branches:
+    exclude:
+      - fix/*
 
 resources:
 - repo: self
