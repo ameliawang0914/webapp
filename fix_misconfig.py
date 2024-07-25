@@ -36,7 +36,7 @@ def fix_values_yaml(file_path):
         yaml.dump(values, file)
 
 def main():
-    opa_output = parse_opa_output('misconfig_report.txt')
+    opa_output = parse_opa_output('misconfigs.json')
     for msg in opa_output:
         if "must not run as root" in msg:
             fix_rendered_yaml('rendered.yaml')

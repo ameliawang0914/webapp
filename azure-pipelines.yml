@@ -1,6 +1,11 @@
 trigger:
 - main
 
+pr:
+  branches:
+    exclude:
+      - fix/*
+
 resources:
 - repo: self
 
@@ -27,7 +32,7 @@ variables:
   - name: pullRequestDescription
     value: 'This PR fixes the values and deployment based on detected misconfigurations'
   - name: sourceBranch
-    value: 'testC'
+    value: 'test'
   
   # Container registry service connection established during pipeline creation
   - name: dockerRegistryServiceConnection
