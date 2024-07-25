@@ -150,9 +150,11 @@ stages:
     displayName: Build
     pool:
       vmImage: $(vmImageName)
+    variables:
+      myStageAVar: $[ dependencies.Scan.jobs.Scan.outputs['setPrOutput.prCreated'] ]
     steps:
     - script: |
-        echo "prCreated: $(dependencies.Scan.outputs['setPrOutput.prCreated'])"
+        echo $(myStageAVar)
     - task: Docker@2
       displayName: Build and push an image to container registry
       inputs:
