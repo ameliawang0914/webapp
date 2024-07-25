@@ -69,7 +69,7 @@ stages:
       continueOnError: false
     
     - script: |
-        echo "Linting Helm charts..."
+        echo "Linting Helm charts....."
         helm lint $(helmChartPath)
         echo "Generating Helm template..."
         helm template release $(helmChartPath) > rendered.yaml
@@ -98,6 +98,7 @@ stages:
       name: setMisconfig
     
     - script: |
+        misconfigReport=$(cat misconfigs.json)
         if [ "$(misconfigReport)" != "[]" ]; then
           echo "Install GitHub CLI"
           sudo apt-get update
