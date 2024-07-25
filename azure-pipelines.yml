@@ -96,7 +96,7 @@ stages:
       displayName: 'Python to Fix OPA Misconfigurations'
       continueOnError: false
 
-    - script: |
+    - bash: |
         misconfigReport=$(cat misconfigs.json)
         if [ "$misconfigReport" != "[]" ]; then
           echo "Install GitHub CLI"
