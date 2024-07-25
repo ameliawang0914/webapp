@@ -144,7 +144,7 @@ stages:
 - stage: Build
   displayName: Build and push stage
   dependsOn: Scan
-  condition: eq(dependencies.Scan.Scan.outputs['setPrOutput.prCreated'], 'false')
+  condition: and(succeeded(), eq(dependencies.Scan.jobs.Scan.outputs['setPrOutput.prCreated'], 'false'))
   jobs:
   - job: Build
     displayName: Build
