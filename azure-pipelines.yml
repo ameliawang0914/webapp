@@ -162,7 +162,7 @@ stages:
     # Task 2 publish build artifacts
     - task: PublishBuildArtifacts@1
       inputs:
-        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        PathtoPublish: '$(System.DefaultWorkingDirectory)'
         ArtifactName: 'kube-manifests'
         publishLocation: 'Container'
         MaxArtifactSize: 100
