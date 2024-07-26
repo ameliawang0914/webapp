@@ -2,11 +2,6 @@
 trigger:
 - main
 
-pr:
-  branches:
-    exclude:
-      - fix/*
-
 resources:
 - repo: self
 
