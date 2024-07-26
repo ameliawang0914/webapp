@@ -93,6 +93,7 @@ stages:
 
     - task: Bash@3
       name: makePull
+      displayName: 'Make Pull Request for Fixes'
       inputs:
         targetType: inline
         script: |
@@ -102,13 +103,6 @@ stages:
             sudo apt-get update
             sudo apt-get install -y gh
             echo "Installation of GitHub CLI completed successfully"
-
-            echo 'Build.SourceBranchName'
-            echo $(Build.SourceBranchName)
-            echo 'targetBranch'
-            echo $(targetBranch)
-            echo 'sourceBranch'
-            echo $(sourceBranch)
 
             git config --global user.email "yuewangapply@gmail.com"
             git config --global user.name "Wang Yue"
@@ -130,19 +124,17 @@ stages:
             echo "##vso[task.setvariable variable=prCreated;isOutput=true]$prCreated"
             echo 'Created a pull request to merge from $(sourceBranch) into $(targetBranch)'
             echo $prCreated
-            echo "miaomiao"
           else
             echo "Skip creating pull request."
             prCreated=false
             echo "##vso[task.setvariable variable=prCreated;isOutput=true]$prCreated"
             echo  $prCreated
-            echo "wang wang"
           fi
 
 - stage: Build
   displayName: Build and push stage
   dependsOn: Scan
-  condition: eq(dependencies.Scan.outputs['Scan.makePull.prCreated'], 'false')
+  condition: and(succeeded(),eq(dependencies.Scan.outputs['Scan.makePull.prCreated'], 'false'))
   jobs:
   - job: Build
     displayName: Build
@@ -150,7 +142,7 @@ stages:
       vmImage: $(vmImageName)
     steps:
     - script: |
-        echo "prCreated: $(prCreated)"
+        echo "prCreated: $prCreated"
     - task: Docker@2
       displayName: Build and push an image to container registry
       inputs:
