@@ -3,7 +3,7 @@ Node JS web app. Provides solution uses OPA to fix misconfiguration automaticall
 
 ## Required packages
 
-Install Helm.
+Helm, Opa.
 
 ## Steps of Usage
 
