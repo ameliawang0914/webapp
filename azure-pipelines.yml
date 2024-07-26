@@ -2,6 +2,11 @@
 trigger:
 - main
 
+pr:
+  branches:
+    exclude:
+      - fix/*
+
 resources:
 - repo: self
 
@@ -153,3 +158,4 @@ stages:
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
           $(tag)
+
